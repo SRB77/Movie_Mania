@@ -3,7 +3,7 @@ import SearchIcon from "./search.svg";
 import "./App.css";
 import Moviec from "./Moviec";
 
-const API_URL = "http://www.omdbapi.com?apikey=b6003d8a";
+const API_URL = "https://www.omdbapi.com?apikey=b6003d8a";
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -14,10 +14,18 @@ const App = () => {
   }, []);
 
   const searchMovies = async (title) => {
-    const response = await fetch(`${API_URL}&s=${title}`);
-    const data = await response.json();
+    try {
+      const response = await fetch(`${API_URL}&s=${title}`);
+      const data = await response.json();
 
-    setMovies(data.Search);
+      if (data.Response === "True") {
+        setMovies(data.Search);
+      } else {
+        setMovies([]); // Clear movies if no results are found
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
   };
 
   return (
@@ -40,7 +48,7 @@ const App = () => {
       {movies?.length > 0 ? (
         <div className="container">
           {movies.map((movie) => (
-            <Moviec movie={movie} />
+            <Moviec movie={movie} key={movie.imdbID} />
           ))}
         </div>
       ) : (
